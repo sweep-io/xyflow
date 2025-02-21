@@ -54,27 +54,12 @@ export const isInternalNodeBase = <NodeType extends InternalNodeBase = InternalN
 ): element is NodeType => 'id' in element && 'internals' in element && !('source' in element) && !('target' in element);
 
 /**
- * This util is used to tell you what nodes, if any, are connected to the given node
- * as the _target_ of an edge.
+ * Pass in a node, and get connected nodes where edge.source === node.id
  * @public
  * @param node - The node to get the connected nodes from
  * @param nodes - The array of all nodes
  * @param edges - The array of all edges
  * @returns An array of nodes that are connected over eges where the source is the given node
- *
- * @example
- * ```ts
- *import { getOutgoers } from '@xyflow/react';
- *
- *const nodes = [];
- *const edges = [];
- *
- *const outgoers = getOutgoers(
- *  { id: '1', position: { x: 0, y: 0 }, data: { label: 'node' } },
- *  nodes,
- *  edges,
- *);
- *```
  */
 export const getOutgoers = <NodeType extends NodeBase = NodeBase, EdgeType extends EdgeBase = EdgeBase>(
   node: NodeType | { id: string },
@@ -96,27 +81,12 @@ export const getOutgoers = <NodeType extends NodeBase = NodeBase, EdgeType exten
 };
 
 /**
- * This util is used to tell you what nodes, if any, are connected to the given node
- * as the _source_ of an edge.
+ * Pass in a node, and get connected nodes where edge.target === node.id
  * @public
  * @param node - The node to get the connected nodes from
  * @param nodes - The array of all nodes
  * @param edges - The array of all edges
  * @returns An array of nodes that are connected over eges where the target is the given node
- *
- * @example
- * ```ts
- *import { getIncomers } from '@xyflow/react';
- *
- *const nodes = [];
- *const edges = [];
- *
- *const incomers = getIncomers(
- *  { id: '1', position: { x: 0, y: 0 }, data: { label: 'node' } },
- *  nodes,
- *  edges,
- *);
- *```
  */
 export const getIncomers = <NodeType extends NodeBase = NodeBase, EdgeType extends EdgeBase = EdgeBase>(
   node: NodeType | { id: string },
@@ -154,40 +124,12 @@ export type GetNodesBoundsParams<NodeType extends NodeBase = NodeBase> = {
 };
 
 /**
- * Returns the bounding box that contains all the given nodes in an array. This can
- * be useful when combined with [`getViewportForBounds`](/api-reference/utils/get-viewport-for-bounds)
- * to calculate the correct transform to fit the given nodes in a viewport.
+ * Internal function for determining a bounding box that contains all given nodes in an array.
  * @public
  * @remarks Useful when combined with {@link getViewportForBounds} to calculate the correct transform to fit the given nodes in a viewport.
  * @param nodes - Nodes to calculate the bounds for
  * @param params.nodeOrigin - Origin of the nodes: [0, 0] - top left, [0.5, 0.5] - center
  * @returns Bounding box enclosing all nodes
- *
- * @remarks This function was previously called `getRectOfNodes`
- *
- * @example
- * ```js
- *import { getNodesBounds } from '@xyflow/react';
- *
- *const nodes = [
- *  {
- *    id: 'a',
- *    position: { x: 0, y: 0 },
- *    data: { label: 'a' },
- *    width: 50,
- *    height: 25,
- *  },
- *  {
- *    id: 'b',
- *    position: { x: 100, y: 100 },
- *    data: { label: 'b' },
- *    width: 50,
- *    height: 25,
- *  },
- *];
- *
- *const bounds = getNodesBounds(nodes);
- *```
  */
 export const getNodesBounds = <NodeType extends NodeBase = NodeBase>(
   nodes: (NodeType | InternalNodeBase<NodeType> | string)[],
@@ -296,30 +238,10 @@ export const getNodesInside = <NodeType extends NodeBase = NodeBase>(
 };
 
 /**
- * This utility filters an array of edges, keeping only those where either the source or target
- * node is present in the given array of nodes.
- * @public
+ * Get all connecting edges for a given set of nodes
  * @param nodes - Nodes you want to get the connected edges for
  * @param edges - All edges
  * @returns Array of edges that connect any of the given nodes with each other
- *
- * @example
- * ```js
- *import { getConnectedEdges } from '@xyflow/react';
- *
- *const nodes = [
- *  { id: 'a', position: { x: 0, y: 0 } },
- *  { id: 'b', position: { x: 100, y: 0 } },
- *];
- *
- *const edges = [
- *  { id: 'a->c', source: 'a', target: 'c' },
- *  { id: 'c->d', source: 'c', target: 'd' },
- *];
- *
- *const connectedEdges = getConnectedEdges(nodes, edges);
- * // => [{ id: 'a->c', source: 'a', target: 'c' }]
- *```
  */
 export const getConnectedEdges = <NodeType extends NodeBase = NodeBase, EdgeType extends EdgeBase = EdgeBase>(
   nodes: NodeType[],
@@ -430,8 +352,8 @@ export function calculateNodePosition<NodeType extends NodeBase>({
 
   return {
     position: {
-      x: positionAbsolute.x - parentX + node.measured.width! * origin[0],
-      y: positionAbsolute.y - parentY + node.measured.height! * origin[1],
+      x: positionAbsolute.x - parentX + (node.measured.width ?? 0) * origin[0],
+      y: positionAbsolute.y - parentY + (node.measured.height ?? 0) * origin[1],
     },
     positionAbsolute,
   };
